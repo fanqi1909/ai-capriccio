@@ -4,6 +4,7 @@ import datetime as dt
 import os
 import re
 import shutil
+import subprocess
 import tempfile
 from pathlib import Path
 
@@ -218,6 +219,44 @@ def ensure_dir(path: Path) -> None:
     path.mkdir(parents=True, exist_ok=True)
 
 
+def import_to_photos(image_paths: list[Path], folder_name: str, album_name: str) -> None:
+    if not image_paths:
+        return
+    files_list = ", ".join(f'POSIX file "{p}"' for p in image_paths)
+    script = f'''
+    tell application "Photos"
+        activate
+        set targetFolder to missing value
+        repeat with f in folders
+            if name of f is "{folder_name}" then
+                set targetFolder to f
+                exit repeat
+            end if
+        end repeat
+        if targetFolder is missing value then
+            set targetFolder to make new folder named "{folder_name}"
+        end if
+
+        set targetAlbum to missing value
+        repeat with a in albums of targetFolder
+            if name of a is "{album_name}" then
+                set targetAlbum to a
+                exit repeat
+            end if
+        end repeat
+        if targetAlbum is missing value then
+            set targetAlbum to make new album named "{album_name}" at targetFolder
+        end if
+
+        set importedItems to import {{{files_list}}}
+        repeat with anItem in importedItems
+            add anItem to targetAlbum
+        end repeat
+    end tell
+    '''
+    subprocess.run(["osascript", "-e", script], check=True)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Generate Xiaohongshu images from a markdown file."
@@ -238,6 +277,16 @@ def main() -> int:
         "--icloud-root",
         default=DEFAULT_ICLOUD_ROOT,
         help="iCloud Drive root path",
+    )
+    parser.add_argument(
+        "--photos",
+        action="store_true",
+        help="Import generated images into Apple Photos",
+    )
+    parser.add_argument(
+        "--photos-folder",
+        default="XHS_Materials",
+        help="Photos folder name to group albums",
     )
     args = parser.parse_args()
 
@@ -277,6 +326,10 @@ def main() -> int:
 
     for img in slices:
         shutil.copy2(img, target_dir / img.name)
+
+    if args.photos:
+        album_name = f"{dt.datetime.now():%Y%m%d}_{base_name}"
+        import_to_photos(slices, args.photos_folder, album_name)
 
     rel_path = None
     if md_path.parts and md_path.parts[0] == "docs":
