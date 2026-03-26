@@ -1,7 +1,7 @@
 ---
-title: Agent Skill 设计模式
+title: AI 时代，也要给大脑回蓝
 parent: AI Capriccio
-nav_order: 2
+nav_order: 3
 ---
 
 # AI 时代，也要给大脑回蓝
