@@ -1,7 +1,10 @@
 title: AI Capriccio
 description: Experiments, thoughts, and engineering notes in the AI era
 
-theme: just-the-docs
+remote_theme: just-the-docs/just-the-docs
+
+plugins:
+  - jekyll-remote-theme
 
 url: https://fanqi1909.github.io
 baseurl: /ai-capriccio
