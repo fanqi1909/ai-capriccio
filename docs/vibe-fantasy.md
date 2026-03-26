@@ -1,3 +1,9 @@
+---
+title: Vibe Fantasy or Fallacy
+parent: AI Capriccio
+nav_order: 5
+---
+
 # Vibe Fantasy or Fallacy: Prompt As Algorithm
 
 最近看了不少 vibe coding 的项目，自己也做了一些，有点感想。
