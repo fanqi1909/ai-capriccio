@@ -1,3 +1,9 @@
+---
+title: Agent Managers 的时代 
+parent: AI Capriccio
+nav_order: 6
+---
+
 # Agent Managers 的时代
 
 *2026年3月 · Retail Trading Claude AI Day 开场 Keynote · Jay Fan*
