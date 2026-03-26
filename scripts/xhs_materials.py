@@ -225,6 +225,11 @@ def main() -> int:
     parser.add_argument("--input", required=True, help="Markdown file path")
     parser.add_argument("--title", help="Override title")
     parser.add_argument(
+        "--site-url",
+        default="https://fanqi1909.github.io/ai-capriccio",
+        help="Base site URL for original link",
+    )
+    parser.add_argument(
         "--output-dir",
         default="out/xhs",
         help="Output directory for generated images",
@@ -272,6 +277,26 @@ def main() -> int:
 
     for img in slices:
         shutil.copy2(img, target_dir / img.name)
+
+    rel_path = None
+    if md_path.parts and md_path.parts[0] == "docs":
+        rel_path = f"/docs/{md_path.stem}.html"
+    else:
+        rel_path = f"/{md_path.stem}.html"
+    original_url = args.site_url.rstrip("/") + rel_path
+    caption = "\n".join(
+        [
+            title,
+            "",
+            f"原文链接：{original_url}",
+            "",
+            "#AI #Agent #工程实践 #工作流 #小红书笔记",
+        ]
+    )
+
+    caption_path = output_dir / f"{base_name}_caption.txt"
+    caption_path.write_text(caption, encoding="utf-8")
+    shutil.copy2(caption_path, target_dir / caption_path.name)
 
     print(f"Title: {title}")
     print(f"Generated: {len(slices)} images")
