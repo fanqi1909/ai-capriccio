@@ -192,9 +192,10 @@ def find_safe_cut(image: Image.Image, target_y: int, window: int = 40) -> int:
 
     for y in range(start, end + 1):
         row = image.crop((0, y, width, y + 1))
-        pixels = list(row.getdata())
         match = 0
-        for r, g, b in pixels:
+        row_pixels = row.load()
+        for x in range(width):
+            r, g, b = row_pixels[x, 0]
             if abs(r - BACKGROUND_RGB[0]) < 6 and abs(g - BACKGROUND_RGB[1]) < 6 and abs(b - BACKGROUND_RGB[2]) < 6:
                 match += 1
         score = match / width
