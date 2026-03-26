@@ -12,7 +12,7 @@ from PIL import Image, ImageDraw, ImageFont
 from playwright.sync_api import sync_playwright
 
 
-DEFAULT_ICLOUD_ROOT = "~/Library/Mobile Documents/com~apple~CloudDocs"
+DEFAULT_ICLOUD_ROOT = "~/Library/Mobile Documents/com~apple~CloudDocs/Documents"
 DEFAULT_CARD_WIDTH = 1080
 DEFAULT_CARD_HEIGHT = 1440
 DEFAULT_MARGIN = 96
