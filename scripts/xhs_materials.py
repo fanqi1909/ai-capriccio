@@ -18,7 +18,7 @@ DEFAULT_ICLOUD_ROOT = "~/Library/Mobile Documents/com~apple~CloudDocs/Documents"
 DEFAULT_CARD_WIDTH = 1080
 DEFAULT_CARD_HEIGHT = 1440
 DEFAULT_MARGIN = 96
-DEFAULT_SCALE = 2
+DEFAULT_SCALE = 3
 BACKGROUND_RGB = (251, 251, 249)
 
 
@@ -44,6 +44,8 @@ HTML_TEMPLATE = """<!doctype html>
       font-family: "Avenir Next", "PingFang SC", "Hiragino Sans GB",
         "Microsoft YaHei", "Noto Sans CJK SC", "Helvetica", Arial, sans-serif;
       line-height: 1.8;
+      -webkit-font-smoothing: subpixel-antialiased;
+      text-rendering: geometricPrecision;
     }}
     .page {{
       width: {width}px;
