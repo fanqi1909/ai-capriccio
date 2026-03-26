@@ -18,6 +18,8 @@ DEFAULT_ICLOUD_ROOT = "~/Library/Mobile Documents/com~apple~CloudDocs/Documents"
 DEFAULT_CARD_WIDTH = 1080
 DEFAULT_CARD_HEIGHT = 1440
 DEFAULT_MARGIN = 96
+DEFAULT_SCALE = 2
+BACKGROUND_RGB = (251, 251, 249)
 
 
 HTML_TEMPLATE = """<!doctype html>
@@ -166,16 +168,39 @@ def parse_markdown(md_path: Path) -> tuple[str, str]:
     return title, html
 
 
-def render_html_to_image(html: str, output_path: Path) -> None:
+def render_html_to_image(html: str, output_path: Path, scale: int) -> None:
     with sync_playwright() as p:
         browser = p.chromium.launch()
         page = browser.new_page(
-            viewport={"width": DEFAULT_CARD_WIDTH, "height": DEFAULT_CARD_HEIGHT}
+            viewport={"width": DEFAULT_CARD_WIDTH, "height": DEFAULT_CARD_HEIGHT},
+            device_scale_factor=scale,
         )
         page.set_content(html, wait_until="networkidle")
         page.wait_for_timeout(400)
-        page.screenshot(path=str(output_path), full_page=True)
+        page.screenshot(path=str(output_path), full_page=True, type="png")
         browser.close()
+
+
+def find_safe_cut(image: Image.Image, target_y: int, window: int = 40) -> int:
+    width, height = image.size
+    start = max(0, target_y - window)
+    end = min(height - 1, target_y + window)
+    best_y = target_y
+    best_score = -1
+
+    for y in range(start, end + 1):
+        row = image.crop((0, y, width, y + 1))
+        pixels = list(row.getdata())
+        match = 0
+        for r, g, b in pixels:
+            if abs(r - BACKGROUND_RGB[0]) < 6 and abs(g - BACKGROUND_RGB[1]) < 6 and abs(b - BACKGROUND_RGB[2]) < 6:
+                match += 1
+        score = match / width
+        if score > best_score:
+            best_score = score
+            best_y = y
+
+    return best_y
 
 
 def slice_image(
@@ -189,9 +214,14 @@ def slice_image(
     pages = (height + card_height - 1) // card_height
     outputs = []
 
+    cursor = 0
     for i in range(pages):
-        top = i * card_height
-        bottom = min((i + 1) * card_height, height)
+        top = cursor
+        tentative_bottom = min(top + card_height, height)
+        if tentative_bottom < height:
+            bottom = find_safe_cut(image, tentative_bottom)
+        else:
+            bottom = tentative_bottom
         crop = image.crop((0, top, width, bottom))
         if crop.height < card_height:
             canvas = Image.new("RGB", (width, card_height), "#fbfbf9")
@@ -212,6 +242,7 @@ def slice_image(
         out_path = output_dir / f"{base_name}{i + 1:02d}.png"
         canvas.save(out_path, "PNG")
         outputs.append(out_path)
+        cursor = bottom
 
     return outputs
 
@@ -314,6 +345,12 @@ def main() -> int:
         help="Output directory for generated images (subfolder per article)",
     )
     parser.add_argument(
+        "--scale",
+        type=int,
+        default=DEFAULT_SCALE,
+        help="Device scale factor for sharper rendering (default 2)",
+    )
+    parser.add_argument(
         "--icloud-root",
         default=DEFAULT_ICLOUD_ROOT,
         help="iCloud Drive root path",
@@ -407,7 +444,7 @@ def main() -> int:
         tmp_html = Path(tmp_dir) / "xhs.html"
         tmp_png = Path(tmp_dir) / "xhs_full.png"
         tmp_html.write_text(html, encoding="utf-8")
-        render_html_to_image(html, tmp_png)
+        render_html_to_image(html, tmp_png, args.scale)
 
         slices = slice_image(
             tmp_png, output_dir, base_name, DEFAULT_CARD_HEIGHT
