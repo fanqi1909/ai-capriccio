@@ -209,7 +209,7 @@ def slice_image(
         label = f"{i + 1}/{pages}"
         draw.text((width - 90, card_height - 44), label, fill="#9aa09a", font=font)
 
-        out_path = output_dir / f"{base_name}_{i + 1:02d}.png"
+        out_path = output_dir / f"{base_name}{i + 1:02d}.png"
         canvas.save(out_path, "PNG")
         outputs.append(out_path)
 
@@ -272,7 +272,7 @@ def main() -> int:
     parser.add_argument(
         "--output-dir",
         default="out/xhs",
-        help="Output directory for generated images",
+        help="Output directory for generated images (subfolder per article)",
     )
     parser.add_argument(
         "--icloud-root",
@@ -311,9 +311,8 @@ def main() -> int:
         if args.album:
             album_name = args.album
         else:
-            first = image_paths[0].stem
-            base = re.sub(r"_\d+$", "", first)
-            album_name = base or "import"
+            parent = image_paths[0].parent.name
+            album_name = parent or "import"
         import_to_photos(image_paths, args.photos_folder, album_name)
         print(f"Imported: {len(image_paths)} images")
         return 0
@@ -338,7 +337,9 @@ def main() -> int:
         margin_bottom=DEFAULT_MARGIN + 40,
     )
 
-    output_dir = Path(args.output_dir)
+    base_name = slug_from_title(title)
+    output_root = Path(args.output_dir)
+    output_dir = output_root / base_name
     ensure_dir(output_dir)
 
     with tempfile.TemporaryDirectory() as tmp_dir:
@@ -347,7 +348,6 @@ def main() -> int:
         tmp_html.write_text(html, encoding="utf-8")
         render_html_to_image(html, tmp_png)
 
-        base_name = slug_from_title(title)
         slices = slice_image(
             tmp_png, output_dir, base_name, DEFAULT_CARD_HEIGHT
         )
