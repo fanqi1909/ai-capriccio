@@ -1,3 +1,9 @@
+---
+title: Agent Skill 设计模式
+parent: AI Capriccio
+nav_order: 2
+---
+
 # Agent Skill 设计模式
 
 > 基于 Google ADK SkillToolset 的 5 个模式，补充 5 个系统架构模式
