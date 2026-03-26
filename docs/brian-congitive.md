@@ -1,3 +1,9 @@
+---
+title: Agent Skill 设计模式
+parent: AI Capriccio
+nav_order: 2
+---
+
 # AI 时代，也要给大脑回蓝
 
 *2026年3月*
