@@ -1,9 +1,6 @@
 .site-header {
-  border-bottom: 1px solid rgba(216, 201, 179, 0.45);
-  background:
-    radial-gradient(circle at top right, rgba(239, 230, 216, 0.55), transparent 38%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.1), transparent);
-  backdrop-filter: blur(8px);
+  border-bottom: 1px solid #e2e5df;
+  background: rgba(255, 255, 255, 0.92);
 }
 
 .site-title {
@@ -16,14 +13,12 @@
 }
 
 .navigation-list-link:hover {
-  color: #f7efe4;
-  transform: translateX(2px);
+  color: #2f433b;
+  transform: translateX(1px);
 }
 
 .main-content-wrap {
-  background:
-    radial-gradient(circle at top right, rgba(230, 193, 126, 0.08), transparent 26%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.24));
+  background: #fbfbf9;
 }
 
 .main-content {
@@ -46,43 +41,29 @@
 .main-content blockquote {
   margin: 2rem 0;
   padding: 1.1rem 1.4rem;
-  border-left: 0;
-  border-radius: 18px;
-  background: rgba(255, 250, 243, 0.75);
-  color: #48514d;
+  border-left: 3px solid #d8ddd7;
+  border-radius: 8px;
+  background: #f7f8f5;
+  color: #4c534d;
 }
 
 .main-content hr {
   margin: 3rem 0;
-  border-color: rgba(123, 63, 0, 0.12);
+  border-color: #e2e5df;
 }
 
 .home-hero {
-  position: relative;
-  overflow: hidden;
   margin-bottom: 2.5rem;
   padding: 3.25rem;
-  border: 1px solid rgba(123, 63, 0, 0.12);
-  border-radius: 28px;
-  background:
-    radial-gradient(circle at top left, rgba(194, 143, 78, 0.18), transparent 32%),
-    linear-gradient(135deg, rgba(255, 250, 244, 0.96), rgba(242, 233, 220, 0.9));
-  box-shadow: 0 24px 60px rgba(42, 55, 50, 0.08);
-}
-
-.home-hero::after {
-  content: "";
-  position: absolute;
-  inset: auto -5rem -5rem auto;
-  width: 16rem;
-  height: 16rem;
-  border-radius: 999px;
-  background: radial-gradient(circle, rgba(31, 58, 50, 0.14), transparent 68%);
+  border: 1px solid #e2e5df;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: none;
 }
 
 .home-eyebrow {
   margin-bottom: 0.9rem;
-  color: #7b3f00;
+  color: #667068;
   font-size: 0.82rem;
   font-weight: 700;
   letter-spacing: 0.18em;
@@ -100,7 +81,7 @@
 .home-intro {
   max-width: 42rem;
   margin: 1.4rem 0 0;
-  color: #37413d;
+  color: #444a46;
   font-size: 1.14rem;
 }
 
@@ -108,8 +89,8 @@
   max-width: 40rem;
   margin-top: 1.8rem;
   padding-top: 1.2rem;
-  border-top: 1px solid rgba(123, 63, 0, 0.14);
-  color: #5f5e55;
+  border-top: 1px solid #e5e7e2;
+  color: #626762;
   font-size: 0.98rem;
   white-space: pre-line;
 }
@@ -130,29 +111,27 @@
   display: block;
   height: 100%;
   padding: 1.4rem 1.45rem;
-  border: 1px solid rgba(123, 63, 0, 0.12);
-  border-radius: 20px;
-  background: rgba(255, 252, 247, 0.82);
+  border: 1px solid #e2e5df;
+  border-radius: 16px;
+  background: #ffffff;
   color: inherit !important;
   text-decoration: none !important;
-  box-shadow: 0 10px 30px rgba(36, 46, 41, 0.04);
+  box-shadow: none;
   transition:
     transform 180ms ease,
     border-color 180ms ease,
-    box-shadow 180ms ease,
     background 180ms ease;
 }
 
 .home-card:hover {
-  transform: translateY(-4px);
-  border-color: rgba(123, 63, 0, 0.26);
-  background: rgba(255, 250, 243, 0.96);
-  box-shadow: 0 18px 36px rgba(36, 46, 41, 0.08);
+  transform: translateY(-2px);
+  border-color: #cdd3cc;
+  background: #fcfcfa;
 }
 
 .home-card-tag {
   margin-bottom: 0.7rem;
-  color: #7b3f00;
+  color: #667068;
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -167,7 +146,7 @@
 
 .home-card-copy {
   margin: 0.75rem 0 0;
-  color: #5d6561;
+  color: #59605b;
   font-size: 0.98rem;
   line-height: 1.75;
 }
@@ -181,8 +160,9 @@
 
 .home-note {
   padding: 1.2rem 1.3rem;
-  border-radius: 18px;
-  background: rgba(31, 58, 50, 0.06);
+  border: 1px solid #e2e5df;
+  border-radius: 16px;
+  background: #ffffff;
 }
 
 .home-note h3 {
@@ -193,14 +173,14 @@
 
 .home-note p {
   margin: 0;
-  color: #535c58;
+  color: #58605b;
   font-size: 0.95rem;
 }
 
 @media (max-width: 800px) {
   .home-hero {
     padding: 2rem 1.4rem;
-    border-radius: 24px;
+    border-radius: 16px;
   }
 
   .home-grid,
