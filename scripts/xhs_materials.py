@@ -11,6 +11,7 @@ from pathlib import Path
 from markdown import markdown
 from PIL import Image, ImageDraw, ImageFont
 from playwright.sync_api import sync_playwright
+import glob
 
 
 DEFAULT_ICLOUD_ROOT = "~/Library/Mobile Documents/com~apple~CloudDocs/Documents"
@@ -289,6 +290,10 @@ def main() -> int:
         help="Only import existing image paths into Apple Photos",
     )
     parser.add_argument(
+        "--album",
+        help="Override Photos album name for import-only mode",
+    )
+    parser.add_argument(
         "--photos-folder",
         default="XHS_Materials",
         help="Photos folder name to group albums",
@@ -296,12 +301,19 @@ def main() -> int:
     args = parser.parse_args()
 
     if args.import_only:
-        image_paths = [Path(p).expanduser() for p in args.import_only]
-        image_paths = [p for p in image_paths if p.exists()]
+        expanded = []
+        for pattern in args.import_only:
+            expanded.extend(glob.glob(os.path.expanduser(pattern)))
+        image_paths = [Path(p) for p in expanded if Path(p).exists()]
         if not image_paths:
             print("No valid images to import.")
             return 1
-        album_name = f"{dt.datetime.now():%Y%m%d}_import"
+        if args.album:
+            album_name = args.album
+        else:
+            first = image_paths[0].stem
+            base = re.sub(r"_\d+$", "", first)
+            album_name = base or "import"
         import_to_photos(image_paths, args.photos_folder, album_name)
         print(f"Imported: {len(image_paths)} images")
         return 0
