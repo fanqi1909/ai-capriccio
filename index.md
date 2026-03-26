@@ -1,5 +1,7 @@
 ---
-layout: default
+title: AI Capriccio
+nav_order: 1
+has_children: true
 ---
 
 # AI Capriccio
@@ -9,6 +11,9 @@ AI 正在改变我们工作的方式。
 
 这里不是最佳实践手册，也不是某种确定无疑的方法论。  
 更像是一份持续展开的工作笔记：记录我在推进 AI 工具、Agent 系统与工程实践时，遇到的问题、形成的判断，以及一些暂时还不成熟、但值得留下来的想法。
+
+有些内容偏工程，有些偏认知，有些只是对当下 AI 工作方式的一点观察。  
+它们未必完整，但希望真实。
 
 > 大道夷且长，窘路狭且促。  
 > 修翼无卑栖，远趾不步局。  
@@ -30,9 +35,9 @@ AI 正在改变我们工作的方式。
 
 ---
 
-## 文章
+## 开始阅读
 
-- [Agent Skill 设计模式](docs/agent-skills.md)
-- [AI 时代，也要给大脑回蓝](docs/brian-congitive.md)
-- [白嫖 Claude API](docs/cli-as-api.md)
-- [Vibe Fantasy or Fallacy: Prompt As Algorithm](docs/vibe-fantasy.md)
+- [Agent Skill 设计模式](agent-skills)
+- [AI 时代，也要给大脑回蓝](brian-congitive)
+- [白嫖 Claude API](cli-as-api)
+- [Vibe Fantasy or Fallacy: Prompt As Algorithm](vibe-fantasy)
