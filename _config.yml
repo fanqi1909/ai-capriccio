@@ -1,3 +1,5 @@
 theme: minima
 title: AI Capriccio
-description: Experiments, thoughts, and experience when ushering to the AI era
+description: Experiments, thoughts, and experience in the AI era
+header_pages:
+  - index.md
