@@ -4,7 +4,119 @@ import datetime as dt
 import os
 import re
 import shutil
+import tempfile
 from pathlib import Path
+
+from markdown import markdown
+from PIL import Image, ImageDraw, ImageFont
+from playwright.sync_api import sync_playwright
+
+
+DEFAULT_ICLOUD_ROOT = "~/Library/Mobile Documents/com~apple~CloudDocs"
+DEFAULT_CARD_WIDTH = 1080
+DEFAULT_CARD_HEIGHT = 1440
+DEFAULT_MARGIN = 96
+
+
+HTML_TEMPLATE = """<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {{
+      --bg: #fbfbf9;
+      --ink: #1f2220;
+      --muted: #5e6460;
+      --border: #e2e5df;
+      --accent: #445d52;
+      --code-bg: #f3f4f1;
+    }}
+    * {{ box-sizing: border-box; }}
+    body {{
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Avenir Next", "PingFang SC", "Hiragino Sans GB",
+        "Microsoft YaHei", "Noto Sans CJK SC", "Helvetica", Arial, sans-serif;
+      line-height: 1.8;
+    }}
+    .page {{
+      width: {width}px;
+      padding: {margin}px {margin}px {margin_bottom}px;
+      margin: 0 auto;
+      background: var(--bg);
+    }}
+    h1 {{
+      font-size: 54px;
+      line-height: 1.2;
+      margin: 0 0 32px;
+      letter-spacing: -0.02em;
+    }}
+    h2 {{
+      font-size: 34px;
+      margin: 40px 0 18px;
+    }}
+    h3 {{
+      font-size: 26px;
+      margin: 28px 0 14px;
+    }}
+    p {{
+      font-size: 24px;
+      margin: 0 0 18px;
+      color: var(--muted);
+    }}
+    hr {{
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 40px 0;
+    }}
+    blockquote {{
+      margin: 28px 0;
+      padding: 18px 22px;
+      border-left: 4px solid var(--border);
+      background: #f7f8f5;
+      color: #4c534d;
+    }}
+    code, pre {{
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 20px;
+      background: var(--code-bg);
+    }}
+    pre {{
+      padding: 16px 18px;
+      border-radius: 12px;
+      overflow-x: auto;
+    }}
+    a {{
+      color: var(--accent);
+      text-decoration: none;
+    }}
+    ul, ol {{
+      margin: 0 0 18px;
+      padding-left: 26px;
+      color: var(--muted);
+      font-size: 24px;
+    }}
+    .footer {{
+      margin-top: 48px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      font-size: 20px;
+      color: #7a807a;
+    }}
+  </style>
+</head>
+<body>
+  <div class="page">
+    {content}
+    <div class="footer">
+      原文见链接 · AI Capriccio
+    </div>
+  </div>
+</body>
+</html>
+"""
 
 
 def slug_from_title(title: str) -> str:
@@ -16,12 +128,90 @@ def slug_from_title(title: str) -> str:
     else:
         compact = "".join(ch for ch in title if not ch.isspace())
         abbr = compact[:8]
-    abbr = abbr.replace(" ", "_")
     abbr = re.sub(r'[\\/:*?"<>|]+', "_", abbr)
     abbr = abbr.strip("._-")
     if not abbr:
         abbr = dt.datetime.now().strftime("%H%M%S")
     return abbr
+
+
+def parse_markdown(md_path: Path) -> tuple[str, str]:
+    raw = md_path.read_text(encoding="utf-8")
+    title = None
+    if raw.startswith("---"):
+        parts = raw.split("---", 2)
+        if len(parts) >= 3:
+            front = parts[1]
+            body = parts[2].lstrip()
+            for line in front.splitlines():
+                if line.startswith("title:"):
+                    title = line.split(":", 1)[1].strip()
+                    break
+        else:
+            body = raw
+    else:
+        body = raw
+
+    if not title:
+        match = re.search(r"^#\s+(.+)$", body, flags=re.MULTILINE)
+        title = match.group(1).strip() if match else md_path.stem
+
+    html = markdown(
+        body,
+        extensions=["fenced_code", "tables", "sane_lists"],
+        output_format="html5",
+    )
+    return title, html
+
+
+def render_html_to_image(html: str, output_path: Path) -> None:
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page(
+            viewport={"width": DEFAULT_CARD_WIDTH, "height": DEFAULT_CARD_HEIGHT}
+        )
+        page.set_content(html, wait_until="networkidle")
+        page.wait_for_timeout(400)
+        page.screenshot(path=str(output_path), full_page=True)
+        browser.close()
+
+
+def slice_image(
+    full_image_path: Path,
+    output_dir: Path,
+    base_name: str,
+    card_height: int,
+) -> list[Path]:
+    image = Image.open(full_image_path)
+    width, height = image.size
+    pages = (height + card_height - 1) // card_height
+    outputs = []
+
+    for i in range(pages):
+        top = i * card_height
+        bottom = min((i + 1) * card_height, height)
+        crop = image.crop((0, top, width, bottom))
+        if crop.height < card_height:
+            canvas = Image.new("RGB", (width, card_height), "#fbfbf9")
+            canvas.paste(crop, (0, 0))
+        else:
+            canvas = crop
+
+        draw = ImageDraw.Draw(canvas)
+        try:
+            font = ImageFont.truetype(
+                "/System/Library/Fonts/Supplemental/Arial Unicode.ttf", 26
+            )
+        except OSError:
+            font = ImageFont.load_default()
+        label = f"{i + 1}/{pages}"
+        draw.text((width - 90, card_height - 44), label, fill="#9aa09a", font=font)
+
+        out_path = output_dir / f"{base_name}_{i + 1:02d}.png"
+        canvas.save(out_path, "PNG")
+        outputs.append(out_path)
+
+    return outputs
 
 
 def ensure_dir(path: Path) -> None:
@@ -30,43 +220,63 @@ def ensure_dir(path: Path) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Create XHS materials folder in iCloud Drive and copy files."
+        description="Generate Xiaohongshu images from a markdown file."
     )
-    parser.add_argument("--title", required=True, help="Article title")
+    parser.add_argument("--input", required=True, help="Markdown file path")
+    parser.add_argument("--title", help="Override title")
+    parser.add_argument(
+        "--output-dir",
+        default="out/xhs",
+        help="Output directory for generated images",
+    )
     parser.add_argument(
         "--icloud-root",
-        default="~/Library/Mobile Documents/com~apple~CloudDocs",
+        default=DEFAULT_ICLOUD_ROOT,
         help="iCloud Drive root path",
-    )
-    parser.add_argument(
-        "--files",
-        nargs="*",
-        default=[],
-        help="Files to copy into the materials folder",
     )
     args = parser.parse_args()
 
-    icloud_root = Path(os.path.expanduser(args.icloud_root))
-    base_dir = icloud_root / "XHS_Materials"
-    ensure_dir(base_dir)
+    md_path = Path(args.input).expanduser()
+    if not md_path.exists():
+        print(f"Markdown file not found: {md_path}")
+        return 1
 
-    date_prefix = dt.datetime.now().strftime("%Y%m%d")
-    slug = slug_from_title(args.title)
-    target_dir = base_dir / f"{date_prefix}_{slug}"
+    title, html_body = parse_markdown(md_path)
+    if args.title:
+        title = args.title
+
+    html = HTML_TEMPLATE.format(
+        content=html_body,
+        width=DEFAULT_CARD_WIDTH,
+        margin=DEFAULT_MARGIN,
+        margin_bottom=DEFAULT_MARGIN + 40,
+    )
+
+    output_dir = Path(args.output_dir)
+    ensure_dir(output_dir)
+
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_html = Path(tmp_dir) / "xhs.html"
+        tmp_png = Path(tmp_dir) / "xhs_full.png"
+        tmp_html.write_text(html, encoding="utf-8")
+        render_html_to_image(html, tmp_png)
+
+        base_name = slug_from_title(title)
+        slices = slice_image(
+            tmp_png, output_dir, base_name, DEFAULT_CARD_HEIGHT
+        )
+
+    icloud_root = Path(os.path.expanduser(args.icloud_root))
+    target_dir = icloud_root / "XHS_Materials" / f"{dt.datetime.now():%Y%m%d}_{base_name}"
     ensure_dir(target_dir)
 
-    copied = 0
-    for file_path in args.files:
-        src = Path(file_path).expanduser()
-        if not src.exists():
-            print(f"Skip missing file: {src}")
-            continue
-        dst = target_dir / src.name
-        shutil.copy2(src, dst)
-        copied += 1
+    for img in slices:
+        shutil.copy2(img, target_dir / img.name)
 
-    print(f"Materials folder: {target_dir}")
-    print(f"Copied files: {copied}")
+    print(f"Title: {title}")
+    print(f"Generated: {len(slices)} images")
+    print(f"Output: {output_dir}")
+    print(f"iCloud: {target_dir}")
     return 0
 
 
