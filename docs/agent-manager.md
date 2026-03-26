@@ -1,7 +1,7 @@
 ---
 title: Agent Managers 的时代 
 parent: AI Capriccio
-nav_order: 6
+nav_order: 1
 ---
 
 # Agent Managers 的时代
