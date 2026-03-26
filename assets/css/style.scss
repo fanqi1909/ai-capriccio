@@ -1,0 +1,64 @@
+---
+---
+
+@import "minima";
+
+.page-content {
+  padding: 48px 0 72px;
+}
+
+.wrapper {
+  max-width: 860px;
+}
+
+.site-header {
+  border-top: 0;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.site-title {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.post-content h1,
+.post-content h2,
+.post-content h3,
+.page-content h1,
+.page-content h2,
+.page-content h3 {
+  letter-spacing: -0.02em;
+}
+
+.page-content h1 {
+  font-size: 48px;
+  line-height: 1.1;
+  margin-bottom: 24px;
+}
+
+.page-content h2 {
+  margin-top: 48px;
+  font-size: 30px;
+}
+
+.page-content p,
+.page-content li {
+  font-size: 18px;
+  line-height: 1.9;
+}
+
+.page-content blockquote {
+  color: #555;
+  border-left: 4px solid #d0d0d0;
+  padding-left: 16px;
+  font-style: normal;
+}
+
+.page-content hr {
+  margin: 40px 0;
+}
+
+.page-content a {
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
