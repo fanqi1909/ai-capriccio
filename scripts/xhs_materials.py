@@ -261,7 +261,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="Generate Xiaohongshu images from a markdown file."
     )
-    parser.add_argument("--input", required=True, help="Markdown file path")
+    parser.add_argument("--input", help="Markdown file path")
     parser.add_argument("--title", help="Override title")
     parser.add_argument(
         "--site-url",
@@ -284,11 +284,31 @@ def main() -> int:
         help="Import generated images into Apple Photos",
     )
     parser.add_argument(
+        "--import-only",
+        nargs="+",
+        help="Only import existing image paths into Apple Photos",
+    )
+    parser.add_argument(
         "--photos-folder",
         default="XHS_Materials",
         help="Photos folder name to group albums",
     )
     args = parser.parse_args()
+
+    if args.import_only:
+        image_paths = [Path(p).expanduser() for p in args.import_only]
+        image_paths = [p for p in image_paths if p.exists()]
+        if not image_paths:
+            print("No valid images to import.")
+            return 1
+        album_name = f"{dt.datetime.now():%Y%m%d}_import"
+        import_to_photos(image_paths, args.photos_folder, album_name)
+        print(f"Imported: {len(image_paths)} images")
+        return 0
+
+    if not args.input:
+        print("--input is required unless using --import-only")
+        return 1
 
     md_path = Path(args.input).expanduser()
     if not md_path.exists():
