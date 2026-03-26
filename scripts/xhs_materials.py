@@ -220,11 +220,17 @@ def ensure_dir(path: Path) -> None:
     path.mkdir(parents=True, exist_ok=True)
 
 
-def import_to_photos(image_paths: list[Path], folder_name: str, album_name: str) -> None:
+def import_to_photos(
+    image_paths: list[Path],
+    folder_name: str,
+    album_name: str,
+    timeout_seconds: int = 300,
+) -> None:
     if not image_paths:
         return
     files_list = ", ".join(f'POSIX file "{p}"' for p in image_paths)
     script = f'''
+    with timeout of {timeout_seconds} seconds
     tell application "Photos"
         activate
         set targetFolder to missing value
@@ -254,6 +260,39 @@ def import_to_photos(image_paths: list[Path], folder_name: str, album_name: str)
             add anItem to targetAlbum
         end repeat
     end tell
+    end timeout
+    '''
+    subprocess.run(["osascript", "-e", script], check=True)
+
+
+def ensure_photos_album(folder_name: str, album_name: str, timeout_seconds: int = 60) -> None:
+    script = f'''
+    with timeout of {timeout_seconds} seconds
+    tell application "Photos"
+        activate
+        set targetFolder to missing value
+        repeat with f in folders
+            if name of f is "{folder_name}" then
+                set targetFolder to f
+                exit repeat
+            end if
+        end repeat
+        if targetFolder is missing value then
+            set targetFolder to make new folder named "{folder_name}"
+        end if
+
+        set targetAlbum to missing value
+        repeat with a in albums of targetFolder
+            if name of a is "{album_name}" then
+                set targetAlbum to a
+                exit repeat
+            end if
+        end repeat
+        if targetAlbum is missing value then
+            set targetAlbum to make new album named "{album_name}" at targetFolder
+        end if
+    end tell
+    end timeout
     '''
     subprocess.run(["osascript", "-e", script], check=True)
 
@@ -294,6 +333,22 @@ def main() -> int:
         help="Override Photos album name for import-only mode",
     )
     parser.add_argument(
+        "--create-album-only",
+        action="store_true",
+        help="Only create Photos folder/album without importing images",
+    )
+    parser.add_argument(
+        "--limit",
+        type=int,
+        help="Limit number of images to import into Photos",
+    )
+    parser.add_argument(
+        "--timeout",
+        type=int,
+        default=300,
+        help="AppleScript timeout seconds for Photos import",
+    )
+    parser.add_argument(
         "--photos-folder",
         default="XHS_Materials",
         help="Photos folder name to group albums",
@@ -305,6 +360,8 @@ def main() -> int:
         for pattern in args.import_only:
             expanded.extend(glob.glob(os.path.expanduser(pattern)))
         image_paths = [Path(p) for p in expanded if Path(p).exists()]
+        if args.limit:
+            image_paths = image_paths[: args.limit]
         if not image_paths:
             print("No valid images to import.")
             return 1
@@ -313,7 +370,11 @@ def main() -> int:
         else:
             parent = image_paths[0].parent.name
             album_name = parent or "import"
-        import_to_photos(image_paths, args.photos_folder, album_name)
+        if args.create_album_only:
+            ensure_photos_album(args.photos_folder, album_name, args.timeout)
+            print(f"Created album: {args.photos_folder}/{album_name}")
+            return 0
+        import_to_photos(image_paths, args.photos_folder, album_name, args.timeout)
         print(f"Imported: {len(image_paths)} images")
         return 0
 
@@ -361,7 +422,10 @@ def main() -> int:
 
     if args.photos:
         album_name = f"{dt.datetime.now():%Y%m%d}_{base_name}"
-        import_to_photos(slices, args.photos_folder, album_name)
+        slices_to_import = slices
+        if args.limit:
+            slices_to_import = slices[: args.limit]
+        import_to_photos(slices_to_import, args.photos_folder, album_name, args.timeout)
 
     rel_path = None
     if md_path.parts and md_path.parts[0] == "docs":
