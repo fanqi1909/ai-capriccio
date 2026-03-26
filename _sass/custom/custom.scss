@@ -1,0 +1,214 @@
+.site-header {
+  border-bottom: 1px solid rgba(216, 201, 179, 0.45);
+  background:
+    radial-gradient(circle at top right, rgba(239, 230, 216, 0.55), transparent 38%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1), transparent);
+  backdrop-filter: blur(8px);
+}
+
+.site-title {
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+
+.navigation-list-link {
+  transition: color 140ms ease, transform 140ms ease;
+}
+
+.navigation-list-link:hover {
+  color: #f7efe4;
+  transform: translateX(2px);
+}
+
+.main-content-wrap {
+  background:
+    radial-gradient(circle at top right, rgba(230, 193, 126, 0.08), transparent 26%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.24));
+}
+
+.main-content {
+  max-width: 980px;
+  padding-top: 3rem;
+}
+
+.main-content h1,
+.main-content h2,
+.main-content h3 {
+  letter-spacing: -0.04em;
+}
+
+.main-content p,
+.main-content li {
+  font-size: 1.02rem;
+  line-height: 1.9;
+}
+
+.main-content blockquote {
+  margin: 2rem 0;
+  padding: 1.1rem 1.4rem;
+  border-left: 0;
+  border-radius: 18px;
+  background: rgba(255, 250, 243, 0.75);
+  color: #48514d;
+}
+
+.main-content hr {
+  margin: 3rem 0;
+  border-color: rgba(123, 63, 0, 0.12);
+}
+
+.home-hero {
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 2.5rem;
+  padding: 3.25rem;
+  border: 1px solid rgba(123, 63, 0, 0.12);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at top left, rgba(194, 143, 78, 0.18), transparent 32%),
+    linear-gradient(135deg, rgba(255, 250, 244, 0.96), rgba(242, 233, 220, 0.9));
+  box-shadow: 0 24px 60px rgba(42, 55, 50, 0.08);
+}
+
+.home-hero::after {
+  content: "";
+  position: absolute;
+  inset: auto -5rem -5rem auto;
+  width: 16rem;
+  height: 16rem;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(31, 58, 50, 0.14), transparent 68%);
+}
+
+.home-eyebrow {
+  margin-bottom: 0.9rem;
+  color: #7b3f00;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.home-title {
+  max-width: 11ch;
+  margin: 0;
+  color: #16211d;
+  font-size: clamp(3rem, 8vw, 5.6rem);
+  line-height: 0.92;
+}
+
+.home-intro {
+  max-width: 42rem;
+  margin: 1.4rem 0 0;
+  color: #37413d;
+  font-size: 1.14rem;
+}
+
+.home-quote {
+  max-width: 40rem;
+  margin-top: 1.8rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid rgba(123, 63, 0, 0.14);
+  color: #5f5e55;
+  font-size: 0.98rem;
+  white-space: pre-line;
+}
+
+.home-section-title {
+  margin: 3rem 0 1rem;
+  font-size: 1.8rem;
+}
+
+.home-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0 2.5rem;
+}
+
+.home-card {
+  display: block;
+  height: 100%;
+  padding: 1.4rem 1.45rem;
+  border: 1px solid rgba(123, 63, 0, 0.12);
+  border-radius: 20px;
+  background: rgba(255, 252, 247, 0.82);
+  color: inherit !important;
+  text-decoration: none !important;
+  box-shadow: 0 10px 30px rgba(36, 46, 41, 0.04);
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background 180ms ease;
+}
+
+.home-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(123, 63, 0, 0.26);
+  background: rgba(255, 250, 243, 0.96);
+  box-shadow: 0 18px 36px rgba(36, 46, 41, 0.08);
+}
+
+.home-card-tag {
+  margin-bottom: 0.7rem;
+  color: #7b3f00;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.home-card-title {
+  margin: 0;
+  color: #18231f;
+  font-size: 1.3rem;
+}
+
+.home-card-copy {
+  margin: 0.75rem 0 0;
+  color: #5d6561;
+  font-size: 0.98rem;
+  line-height: 1.75;
+}
+
+.home-notes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1.3rem;
+}
+
+.home-note {
+  padding: 1.2rem 1.3rem;
+  border-radius: 18px;
+  background: rgba(31, 58, 50, 0.06);
+}
+
+.home-note h3 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-size: 1.04rem;
+}
+
+.home-note p {
+  margin: 0;
+  color: #535c58;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 800px) {
+  .home-hero {
+    padding: 2rem 1.4rem;
+    border-radius: 24px;
+  }
+
+  .home-grid,
+  .home-notes {
+    grid-template-columns: 1fr;
+  }
+
+  .main-content {
+    padding-top: 2rem;
+  }
+}

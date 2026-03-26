@@ -2,6 +2,7 @@ title: AI Capriccio
 description: Experiments, thoughts, and engineering notes in the AI era
 
 remote_theme: just-the-docs/just-the-docs
+color_scheme: capriccio
 
 plugins:
   - jekyll-remote-theme
