@@ -1,3 +1,9 @@
+---
+title: 白嫖 Claude API
+parent: AI Capriccio
+nav_order: 4
+---
+
 # 白嫖 Claude API
 
 > 既然有了 claude.ai，为什么一定要我买 API？
