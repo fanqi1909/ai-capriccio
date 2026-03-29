@@ -1,3 +1,9 @@
+---
+title: 那杯咖啡的重量
+parent: AI Capriccio
+nav_order: 6
+---
+
 # 那杯咖啡的重量
 
 **设计哲学手记 · 2026**
